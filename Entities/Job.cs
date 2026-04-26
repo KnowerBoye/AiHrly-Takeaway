@@ -10,7 +10,7 @@ namespace AihrlyApi.Entities
         public string title {get; set;}
         public string description {get; set;}
         public string location {get; set;}
-        public Status status {get; set;}
+        public Status status {get; set;} = Status.open;
 
         public ICollection<Application> applications {get; set;}
 

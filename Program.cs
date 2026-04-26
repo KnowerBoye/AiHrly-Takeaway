@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using AihrlyApi.Data;
+using AihrlyApi.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +12,12 @@ builder.Services.AddProblemDetails();
 
 builder.Services.AddDbContext<ApiDbContext>(options =>
 options.UseNpgsql(builder.Configuration.GetConnectionString("Default")));
+
+
+
+
+// add services
+builder.Services.AddScoped<JobService>();
 
 var app = builder.Build();
 
