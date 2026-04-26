@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace aihrly_api.Migrations
 {
     [DbContext(typeof(ApiDbContext))]
-    [Migration("20260426120900_createJobsAndApplicatonTable")]
-    partial class createJobsAndApplicatonTable
+    [Migration("20260426122907_createdInitalEntities")]
+    partial class createdInitalEntities
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

@@ -6,16 +6,11 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace aihrly_api.Migrations
 {
     /// <inheritdoc />
-    public partial class createJobsAndApplicatonTable : Migration
+    public partial class createdInitalEntities : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.RenameColumn(
-                name: "Id",
-                table: "TeamMembers",
-                newName: "id");
-
             migrationBuilder.AlterDatabase()
                 .Annotation("Npgsql:Enum:application_stages.application_stages", "applied,screening,interview,offer,hired,rejected")
                 .Annotation("Npgsql:Enum:job_status.status", "open,closed")
@@ -34,6 +29,20 @@ namespace aihrly_api.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Jobs", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "TeamMembers",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    name = table.Column<string>(type: "text", nullable: false),
+                    email = table.Column<string>(type: "text", nullable: false),
+                    role = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TeamMembers", x => x.id);
                 });
 
             migrationBuilder.CreateTable(
@@ -166,17 +175,10 @@ namespace aihrly_api.Migrations
                 name: "Applications");
 
             migrationBuilder.DropTable(
+                name: "TeamMembers");
+
+            migrationBuilder.DropTable(
                 name: "Jobs");
-
-            migrationBuilder.RenameColumn(
-                name: "id",
-                table: "TeamMembers",
-                newName: "Id");
-
-            migrationBuilder.AlterDatabase()
-                .OldAnnotation("Npgsql:Enum:application_stages.application_stages", "applied,screening,interview,offer,hired,rejected")
-                .OldAnnotation("Npgsql:Enum:job_status.status", "open,closed")
-                .OldAnnotation("Npgsql:Enum:team_member_role.team_member_role", "recruiter,hiring_manager");
         }
     }
 }
