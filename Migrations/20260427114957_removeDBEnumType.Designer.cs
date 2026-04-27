@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace aihrly_api.Migrations
 {
     [DbContext(typeof(ApiDbContext))]
-    [Migration("20260426122907_createdInitalEntities")]
-    partial class createdInitalEntities
+    [Migration("20260427114957_removeDBEnumType")]
+    partial class removeDBEnumType
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -23,9 +23,6 @@ namespace aihrly_api.Migrations
                 .HasAnnotation("ProductVersion", "9.0.1")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
-            NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "application_stages", "application_stages", new[] { "applied", "screening", "interview", "offer", "hired", "rejected" });
-            NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "job_status", "status", new[] { "open", "closed" });
-            NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "team_member_role", "team_member_role", new[] { "recruiter", "hiring_manager" });
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
             modelBuilder.Entity("AihrlyApi.Entities.Application", b =>
@@ -34,8 +31,12 @@ namespace aihrly_api.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<int>("current_stage")
-                        .HasColumnType("integer");
+                    b.Property<string>("coverLetter")
+                        .HasColumnType("text");
+
+                    b.Property<string>("current_stage")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("email")
                         .IsRequired()
@@ -92,6 +93,41 @@ namespace aihrly_api.Migrations
                     b.ToTable("ApplicationNotes");
                 });
 
+            modelBuilder.Entity("AihrlyApi.Entities.ApplicationScore", b =>
+                {
+                    b.Property<Guid>("id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("applicationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("comment")
+                        .HasColumnType("text");
+
+                    b.Property<string>("dimension")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("score")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("updatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("updatedBy")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("id");
+
+                    b.HasIndex("updatedBy");
+
+                    b.HasIndex("applicationId", "dimension")
+                        .IsUnique();
+
+                    b.ToTable("ApplicationScore");
+                });
+
             modelBuilder.Entity("AihrlyApi.Entities.ApplicationStageHistory", b =>
                 {
                     b.Property<Guid>("id")
@@ -111,11 +147,13 @@ namespace aihrly_api.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("from_stage")
-                        .HasColumnType("integer");
+                    b.Property<string>("from_stage")
+                        .IsRequired()
+                        .HasColumnType("text");
 
-                    b.Property<int>("to_stage")
-                        .HasColumnType("integer");
+                    b.Property<string>("to_stage")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.HasKey("id");
 
@@ -140,8 +178,9 @@ namespace aihrly_api.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("status")
-                        .HasColumnType("integer");
+                    b.Property<string>("status")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("title")
                         .IsRequired()
@@ -168,12 +207,36 @@ namespace aihrly_api.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("role")
-                        .HasColumnType("integer");
+                    b.Property<string>("role")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.HasKey("id");
 
                     b.ToTable("TeamMembers");
+
+                    b.HasData(
+                        new
+                        {
+                            id = new Guid("00000000-0000-0000-0000-000000000001"),
+                            email = "noahboye@mail.com",
+                            name = "Noah Boye",
+                            role = "hiring_manager"
+                        },
+                        new
+                        {
+                            id = new Guid("00000000-0000-0000-0000-000000000002"),
+                            email = "janedoe@mail.com",
+                            name = "Jane Doe",
+                            role = "recruiter"
+                        },
+                        new
+                        {
+                            id = new Guid("00000000-0000-0000-0000-000000000003"),
+                            email = "johnboye@mail.com",
+                            name = "John Boye",
+                            role = "hiring_manager"
+                        });
                 });
 
             modelBuilder.Entity("AihrlyApi.Entities.Application", b =>
@@ -204,6 +267,23 @@ namespace aihrly_api.Migrations
                     b.Navigation("teamMember");
                 });
 
+            modelBuilder.Entity("AihrlyApi.Entities.ApplicationScore", b =>
+                {
+                    b.HasOne("AihrlyApi.Entities.Application", null)
+                        .WithMany("scores")
+                        .HasForeignKey("applicationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("AihrlyApi.Entities.TeamMember", "teamMember")
+                        .WithMany()
+                        .HasForeignKey("updatedBy")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("teamMember");
+                });
+
             modelBuilder.Entity("AihrlyApi.Entities.ApplicationStageHistory", b =>
                 {
                     b.HasOne("AihrlyApi.Entities.Application", null)
@@ -212,16 +292,20 @@ namespace aihrly_api.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("AihrlyApi.Entities.TeamMember", null)
+                    b.HasOne("AihrlyApi.Entities.TeamMember", "teamMember")
                         .WithMany()
                         .HasForeignKey("changed_by")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
+
+                    b.Navigation("teamMember");
                 });
 
             modelBuilder.Entity("AihrlyApi.Entities.Application", b =>
                 {
                     b.Navigation("notes");
+
+                    b.Navigation("scores");
 
                     b.Navigation("stage_history");
                 });

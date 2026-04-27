@@ -6,15 +6,17 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace aihrly_api.Migrations
 {
     /// <inheritdoc />
-    public partial class createdInitalEntities : Migration
+    public partial class DBEnumSchemaFixes : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AlterDatabase()
-                .Annotation("Npgsql:Enum:application_stages.application_stages", "applied,screening,interview,offer,hired,rejected")
-                .Annotation("Npgsql:Enum:job_status.status", "open,closed")
-                .Annotation("Npgsql:Enum:team_member_role.team_member_role", "recruiter,hiring_manager");
+                .Annotation("Npgsql:Enum:application_note_type", "general,screening,interview,reference_check,red_flag")
+                .Annotation("Npgsql:Enum:application_stages", "applied,screening,interview,offer,hired,rejected")
+                .Annotation("Npgsql:Enum:score_dimension", "culture_fit,interview,assessment")
+                .Annotation("Npgsql:Enum:status", "open,closed")
+                .Annotation("Npgsql:Enum:team_member_role", "recruiter,hiring_manager");
 
             migrationBuilder.CreateTable(
                 name: "Jobs",
@@ -38,7 +40,7 @@ namespace aihrly_api.Migrations
                     id = table.Column<Guid>(type: "uuid", nullable: false),
                     name = table.Column<string>(type: "text", nullable: false),
                     email = table.Column<string>(type: "text", nullable: false),
-                    role = table.Column<int>(type: "integer", nullable: false)
+                    role = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -53,7 +55,8 @@ namespace aihrly_api.Migrations
                     jobId = table.Column<Guid>(type: "uuid", nullable: false),
                     name = table.Column<string>(type: "text", nullable: false),
                     email = table.Column<string>(type: "text", nullable: false),
-                    current_stage = table.Column<int>(type: "integer", nullable: false)
+                    coverLetter = table.Column<string>(type: "text", nullable: true),
+                    current_stage = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -93,13 +96,41 @@ namespace aihrly_api.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "ApplicationScore",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    applicationId = table.Column<Guid>(type: "uuid", nullable: false),
+                    dimension = table.Column<string>(type: "text", nullable: false),
+                    score = table.Column<int>(type: "integer", nullable: false),
+                    comment = table.Column<string>(type: "text", nullable: true),
+                    updatedBy = table.Column<Guid>(type: "uuid", nullable: false),
+                    updatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ApplicationScore", x => x.id);
+                    table.ForeignKey(
+                        name: "FK_ApplicationScore_Applications_applicationId",
+                        column: x => x.applicationId,
+                        principalTable: "Applications",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ApplicationScore_TeamMembers_updatedBy",
+                        column: x => x.updatedBy,
+                        principalTable: "TeamMembers",
+                        principalColumn: "id");
+                });
+
+            migrationBuilder.CreateTable(
                 name: "ApplicationStageHistories",
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
                     applicationId = table.Column<Guid>(type: "uuid", nullable: false),
-                    from_stage = table.Column<int>(type: "integer", nullable: false),
-                    to_stage = table.Column<int>(type: "integer", nullable: false),
+                    from_stage = table.Column<string>(type: "text", nullable: false),
+                    to_stage = table.Column<string>(type: "text", nullable: false),
                     changed_by = table.Column<Guid>(type: "uuid", nullable: false),
                     changed_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     comment = table.Column<string>(type: "text", nullable: false)
@@ -119,6 +150,11 @@ namespace aihrly_api.Migrations
                         principalTable: "TeamMembers",
                         principalColumn: "id");
                 });
+
+            migrationBuilder.InsertData(
+                table: "TeamMembers",
+                columns: new[] { "id", "email", "name", "role" },
+                values: new object[] { new Guid("00000000-0000-0000-0000-000000000001"), "noahboye@mail.com", "Noah Boye", "hiring_manager" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_ApplicationNotes_applicationId",
@@ -147,6 +183,17 @@ namespace aihrly_api.Migrations
                 column: "jobId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_ApplicationScore_applicationId_dimension",
+                table: "ApplicationScore",
+                columns: new[] { "applicationId", "dimension" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ApplicationScore_updatedBy",
+                table: "ApplicationScore",
+                column: "updatedBy");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_ApplicationStageHistories_applicationId",
                 table: "ApplicationStageHistories",
                 column: "applicationId");
@@ -167,6 +214,9 @@ namespace aihrly_api.Migrations
         {
             migrationBuilder.DropTable(
                 name: "ApplicationNotes");
+
+            migrationBuilder.DropTable(
+                name: "ApplicationScore");
 
             migrationBuilder.DropTable(
                 name: "ApplicationStageHistories");

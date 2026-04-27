@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace AihrlyApi.Entities
 {   
 
@@ -10,6 +12,18 @@ namespace AihrlyApi.Entities
         hired ,
         rejected
     }
+
+
+    public enum ApplicationNoteType
+    {
+        general , 
+        screening , 
+        interview , 
+        reference_check , 
+        red_flag
+    }
+
+    public enum ScoreDimension { culture_fit, interview, assessment }
     public class Application
     {
         
@@ -20,19 +34,21 @@ namespace AihrlyApi.Entities
         public string name { get; set; }
         public string email { get; set; }
 
-        public string? coverLetter { get; set; } = null;
+        public string? coverLetter { get; set; } = "";
         public ApplicationStages current_stage { get; set; } = ApplicationStages.applied;
 
         public ICollection<ApplicationNote> notes { get; set; }
 
         public ICollection<ApplicationStageHistory> stage_history { get; set; }
+
+        public ICollection<ApplicationScore> scores { get; set; } = new List<ApplicationScore>();
     }
 
 
     public class ApplicationNote
     {
         public Guid id { get; set;}
-        public string type {get; set;} 
+        public ApplicationNoteType type {get; set;} 
         public string description {get; set;}
         public Guid applicationId {get; set;}
 
@@ -40,7 +56,7 @@ namespace AihrlyApi.Entities
 
         public TeamMember teamMember {get; set;}
 
-        public DateTime created_at {get; set;} 
+        public DateTime created_at {get; set;} = DateTime.UtcNow;
     }
 
 
@@ -52,7 +68,26 @@ namespace AihrlyApi.Entities
         public ApplicationStages to_stage {get; set;}
 
         public Guid changed_by {get; set;}
-        public DateTime changed_at {get; set;}
-        public string comment {get; set;}
+
+        public TeamMember teamMember {get; set;}
+        public DateTime changed_at {get; set;} = DateTime.UtcNow;
+        public string comment {get; set;} = "";
+    }
+
+
+
+
+    public class ApplicationScore
+    {
+        public Guid id { get; set; }
+        public Guid applicationId { get; set; }
+        public ScoreDimension dimension { get; set; }
+        [Range(1 , 5)]
+        public int score { get; set; } 
+        public string? comment { get; set; }
+        public Guid updatedBy { get; set; } 
+
+        public TeamMember teamMember { get; set; }
+        public DateTime updatedAt { get; set; }
     }
 }

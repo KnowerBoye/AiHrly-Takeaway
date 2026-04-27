@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Http;
+using FluentValidation;
 
 public class ValidationFilter<T> : IEndpointFilter
 {
@@ -39,3 +40,27 @@ public class ValidationFilter<T> : IEndpointFilter
         return await next(context);
     }
 }
+
+
+
+
+public class FluentValidationFilter<T>(IValidator<T> validator) : IEndpointFilter
+{
+
+    public async ValueTask<object?> InvokeAsync(
+        EndpointFilterInvocationContext context, 
+        EndpointFilterDelegate next)
+    {
+        var dto = context.Arguments.OfType<T>().FirstOrDefault();
+
+        var validationResult = await validator.ValidateAsync(dto);
+
+        if (!validationResult.IsValid) return Results.ValidationProblem(validationResult.ToDictionary());
+        
+
+        return await next(context);
+    }
+}
+
+
+

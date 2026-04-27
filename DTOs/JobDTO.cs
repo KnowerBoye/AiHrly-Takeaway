@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using AihrlyApi.Entities;
+using System.Text.Json.Serialization;
 
 namespace AihrlyApi.DTOs
 
@@ -24,6 +25,7 @@ public class CreateJobRequest
         public string description { get; set; }
         public string location { get; set; }
 
+        [JsonConverter(typeof(JsonStringEnumConverter))]
         public Status status { get; set; }
       
     }

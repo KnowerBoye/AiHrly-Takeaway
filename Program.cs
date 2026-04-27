@@ -1,6 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using AihrlyApi.Data;
 using AihrlyApi.Services;
+using System.Text.Json.Serialization;
+using FluentValidation;
+using AihrlyApi.Validators;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,10 +13,16 @@ builder.Services.AddOpenApi();
 
 builder.Services.AddProblemDetails();
 
+// builder.Services.ConfigureHttpJsonOptions(options => { options.SerializerOptions.Converters.Add( new JsonStringEnumConverter() ); });
+
 builder.Services.AddDbContext<ApiDbContext>(options =>
 options.UseNpgsql(builder.Configuration.GetConnectionString("Default")));
 
 
+
+// register validator from assembly 
+
+builder.Services.AddValidatorsFromAssemblyContaining<UpdateApplicationStageRequestValidator>();
 
 
 // add services
