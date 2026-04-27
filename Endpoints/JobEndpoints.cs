@@ -46,10 +46,12 @@ public static class JobEndpoints
             return Results.Ok(job);
         });
 
+        
+        
         /// <summary>
         /// Get all jobs with pagination and optional status filter
-        /// </summary>
-        group.MapGet("/" , async (JobService service, Status? status , int page = 1 , int pageSize = 20) =>
+        group.MapGet("/" , async ( JobService service , 
+        Status? status,  int page = 1 , int pageSize = 20) =>
         {
             
             page = Math.Max(page, 1);
@@ -59,8 +61,52 @@ public static class JobEndpoints
             return Results.Ok(result);
         });
 
+
+
+
+        /// <summary>
+        /// Create application for a job
+        /// </summary>
+        group.MapPost("/{jobId:guid}/applications" , async (Guid jobId , 
+        CreateApplicationRequest request , ApplicationService service) =>
+        {
+
+            Console.WriteLine(jobId);
+            
+            var result = await service.CreateAsync(jobId , request);
+
+            if(result == null) return Results.NotFound("Job not found.");
+
+            if(!result.isSuccess) return Results.BadRequest(result.error);
+
+            return Results.Created();
+        })
+        .AddEndpointFilter<ValidationFilter<CreateApplicationRequest>>();
+
+
+
+        /// <summary>
+        /// list al applications for a job with optional stage filter
+        /// </summary>
+
+        group.MapGet("/{jobId:guid}/applications" , async (Guid jobId , 
+        ApplicationStages? stage , ApplicationService service) =>
+        {   
+            var result = await service.GetByJobAsync(jobId , stage);
+
+            if(result == null) return Results.NotFound("Job not found.");
+
+            return Results.Ok(result);
+            
+        });
+
         return group;
     }
+
+
+
+
+    
 
 
     

@@ -20,7 +20,8 @@ namespace AihrlyApi.Entities
         public string name { get; set; }
         public string email { get; set; }
 
-        public ApplicationStages current_stage { get; set; }
+        public string? coverLetter { get; set; } = null;
+        public ApplicationStages current_stage { get; set; } = ApplicationStages.applied;
 
         public ICollection<ApplicationNote> notes { get; set; }
 

@@ -18,6 +18,7 @@ options.UseNpgsql(builder.Configuration.GetConnectionString("Default")));
 
 // add services
 builder.Services.AddScoped<JobService>();
+builder.Services.AddScoped<ApplicationService>();
 
 var app = builder.Build();
 
