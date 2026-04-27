@@ -30,11 +30,7 @@ public class ValidationFilter<T> : IEndpointFilter
                     g => g.Select(x => x.ErrorMessage).ToArray()
                 );
 
-            return Results.BadRequest(new
-            {
-                message = "Validation failed",
-                errors
-            });
+            return Results.ValidationProblem(errors);
         }
 
         return await next(context);

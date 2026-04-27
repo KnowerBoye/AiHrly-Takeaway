@@ -25,7 +25,7 @@ public class ApplicationResponse
     public string name { get; set; }
     public string email { get; set; }
 
-    
+    [JsonConverter(typeof(JsonStringEnumConverter))]
     public ApplicationStages current_stage { get; set; }
 
     public string? coverLetter { get; set; }
@@ -49,16 +49,20 @@ public class CreateApplicationNoteRequest
         public string description { get; set; }
     }
 
-
 public class ApplicationNoteResponse
-    {
-        public Guid id { get; set;}
+{
+    public Guid id { get; set;}
         
         [JsonConverter(typeof(JsonStringEnumConverter))]
         public ApplicationNoteType type {get; set;} 
         public string description {get; set;}
-        public Guid created_by {get; set;}
+        
+}
+public class ApplicationNoteDetails : ApplicationNoteResponse
+    {
+        
         public string author_name {get; set;}
+        public Guid created_by {get; set;}
 
     }
 
@@ -102,7 +106,7 @@ public class ApplicationProfileResponse
 
     public ApplicationScoresDto scores { get; set; }
 
-    public List<ApplicationNoteResponse> notes { get; set; }
+    public List<ApplicationNoteDetails> notes { get; set; }
 
     public List<ApplicationStageHistoryDto> stageHistory { get; set; }
 }

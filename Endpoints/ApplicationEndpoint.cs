@@ -42,7 +42,7 @@ public static class ApplicationEndpoints
 
             if(result is null) return Results.NotFound();
 
-            if(!result.isSuccess) return Results.BadRequest(result.error);
+            if(!result.isSuccess) return Results.ValidationProblem(new Dictionary<string, string[]> { { "stage", new[] { result.error } } });
 
             return Results.NoContent();
 
@@ -67,6 +67,10 @@ public static class ApplicationEndpoints
             var TeamMemberId = (Guid) httpContext.Items["TeamMemberId"];
 
             var result = await service.AddNoteAsync(id , request , TeamMemberId );
+
+            if(result is null) return Results.NotFound();
+
+            return Results.Created($"api/applications/{id}/notes/{result.id}" , result);
             
         })
         .AddEndpointFilter<TeamMemberFilter>()
@@ -88,6 +92,10 @@ public static class ApplicationEndpoints
         });
 
 
+
+
+        /// application scoring endpoints 
+        /// 
         group.MapPut("/{id:guid}/scores/culture-fit" , async (Guid id , 
         UpsertScoreRequest request ,
         ApplicationService service ,

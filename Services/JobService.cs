@@ -13,14 +13,21 @@ namespace AihrlyApi.Services
     {
 
 
-        public async Task CreateAsync(Job job)
+        public async Task<JobResponse?> CreateAsync(Job job)
         {
             job.id = Guid.NewGuid();
 
             context.Jobs.Add(job);
             await context.SaveChangesAsync();
 
-   
+            return new JobResponse
+            {
+                id = job.id,
+                title = job.title,
+                description = job.description,
+                location = job.location,
+                status = job.status
+            };
         }
 
         public async Task<JobResponse?> GetByIdAsync(Guid id)

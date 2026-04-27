@@ -23,9 +23,9 @@ public static class JobEndpoints
                
             };
 
-            await service.CreateAsync(job);
+            var jobResponse = await service.CreateAsync(job);
 
-            return Results.Created();
+            return Results.Created($"api/jobs/{jobResponse?.id}", jobResponse);
 
         })
         .AddEndpointFilter<ValidationFilter<CreateJobRequest>>();
@@ -71,15 +71,15 @@ public static class JobEndpoints
         CreateApplicationRequest request , ApplicationService service) =>
         {
 
-            Console.WriteLine(jobId);
+            // Console.WriteLine(jobId);
             
             var result = await service.CreateAsync(jobId , request);
 
             if(result == null) return Results.NotFound("Job not found.");
 
-            if(!result.isSuccess) return Results.BadRequest(result.error);
+            if(!result.isSuccess) return Results.Problem(detail: result.error, statusCode: StatusCodes.Status400BadRequest);
 
-            return Results.Created();
+            return Results.Created($"api/applications/{result.data?.id}", result.data);
         })
         .AddEndpointFilter<ValidationFilter<CreateApplicationRequest>>();
 

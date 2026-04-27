@@ -16,6 +16,11 @@ namespace AihrlyApi.Services
         public string? error { get; set; }
 
     }
+
+    public class Result<T> : Result
+{
+    public T? data { get; set; }
+}
    
    
    
@@ -41,7 +46,7 @@ namespace AihrlyApi.Services
         
 
     //application management
-    public async Task<Result?> CreateAsync(Guid jobId, CreateApplicationRequest request)
+    public async Task<Result<ApplicationResponse>?> CreateAsync(Guid jobId, CreateApplicationRequest request)
         {   
 
             var checkJob = await context.Jobs.AnyAsync(j => j.id == jobId);
@@ -50,7 +55,7 @@ namespace AihrlyApi.Services
 
             var exists = await context.Applications.AnyAsync(a => a.email == request.email && a.jobId == jobId);
 
-            if(exists) return new Result
+            if(exists) return new Result<ApplicationResponse>
             {
                 isSuccess = false,
                 error = "An application with the same email already exists for this job."
@@ -69,9 +74,16 @@ namespace AihrlyApi.Services
             context.Applications.Add(application);
             await context.SaveChangesAsync();
 
-            return new Result
+            return new Result<ApplicationResponse>
             {
-                isSuccess = true
+                isSuccess = true,
+                data = new ApplicationResponse 
+                {
+                    id = application.id,
+                    name = application.name,
+                    email = application.email,
+                    current_stage = application.current_stage
+                }
             };
         }
 
@@ -212,7 +224,7 @@ namespace AihrlyApi.Services
 
             notes = a.notes
                 .OrderByDescending(n => n.created_at)
-                .Select(n => new ApplicationNoteResponse
+                .Select(n => new ApplicationNoteDetails
                 {
                     id = n.id,
                     type = n.type,
@@ -251,7 +263,7 @@ namespace AihrlyApi.Services
 
     //note management
 
-    public async Task<Result?> AddNoteAsync(
+    public async Task<ApplicationNoteResponse?> AddNoteAsync(
     Guid applicationId,
     CreateApplicationNoteRequest request,
     Guid teamMemberId)
@@ -277,15 +289,18 @@ namespace AihrlyApi.Services
 
     await context.SaveChangesAsync();
 
-    return new Result
+    return new ApplicationNoteResponse
     {
-        isSuccess = true
+        id = note.id,
+        type = note.type,
+        description = note.description,
+     
     };
 }
 
 
 
-    public async Task<PagedResult<ApplicationNoteResponse>?> GetNotesAsync(Guid applicationId)
+    public async Task<PagedResult<ApplicationNoteDetails>?> GetNotesAsync(Guid applicationId)
         {
             var applicationExists = await context.Applications
                 .AnyAsync(a => a.id == applicationId);
@@ -296,7 +311,7 @@ namespace AihrlyApi.Services
                 .Where(n => n.applicationId == applicationId)
                 .OrderByDescending(n => n.created_at)
                 .Include(n => n.teamMember)
-                .Select(n => new ApplicationNoteResponse
+                .Select(n => new ApplicationNoteDetails
                 {
                     id = n.id,
                     type = n.type,
@@ -306,7 +321,7 @@ namespace AihrlyApi.Services
                 })
                 .ToListAsync();
 
-            return new PagedResult<ApplicationNoteResponse>
+            return new PagedResult<ApplicationNoteDetails>
             {
                 items = notes,
                 totalCount = notes.Count
