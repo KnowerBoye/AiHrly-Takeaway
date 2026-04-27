@@ -286,32 +286,84 @@ namespace AihrlyApi.Services
 
 
     public async Task<PagedResult<ApplicationNoteResponse>?> GetNotesAsync(Guid applicationId)
-{
-    var applicationExists = await context.Applications
-        .AnyAsync(a => a.id == applicationId);
-
-    if (!applicationExists)   return null;
-
-    var notes = await context.ApplicationNotes
-        .Where(n => n.applicationId == applicationId)
-        .OrderByDescending(n => n.created_at)
-        .Include(n => n.teamMember)
-        .Select(n => new ApplicationNoteResponse
         {
-            id = n.id,
-            type = n.type,
-            description = n.description,
-            created_by = n.created_by,
-            author_name = n.teamMember.name
-        })
-        .ToListAsync();
+            var applicationExists = await context.Applications
+                .AnyAsync(a => a.id == applicationId);
 
-    return new PagedResult<ApplicationNoteResponse>
-    {
-        items = notes,
-        totalCount = notes.Count
-    };
-}
+            if (!applicationExists)   return null;
+
+            var notes = await context.ApplicationNotes
+                .Where(n => n.applicationId == applicationId)
+                .OrderByDescending(n => n.created_at)
+                .Include(n => n.teamMember)
+                .Select(n => new ApplicationNoteResponse
+                {
+                    id = n.id,
+                    type = n.type,
+                    description = n.description,
+                    created_by = n.created_by,
+                    author_name = n.teamMember.name
+                })
+                .ToListAsync();
+
+            return new PagedResult<ApplicationNoteResponse>
+            {
+                items = notes,
+                totalCount = notes.Count
+            };
+        }
+
+
+
+        /// add score for applicaiton 
+        /// 
+        
+        public async Task<Result?> UpsertScoreAsync(
+            Guid applicationId,
+            ScoreDimension dimension,
+            UpsertScoreRequest request,
+            Guid teamMemberId)
+        {
+            var applicationExists = await context.Applications
+                .AnyAsync(a => a.id == applicationId);
+
+            if (!applicationExists) return null;
+
+            var existingScore = await context.ApplicationScores
+                .FirstOrDefaultAsync(s =>
+                    s.applicationId == applicationId &&
+                    s.dimension == dimension);
+
+            if (existingScore is null) {
+        
+                var score = new ApplicationScore
+                {
+                    id = Guid.NewGuid(),
+                    applicationId = applicationId,
+                    dimension = dimension,
+                    score = request.score,
+                    comment = request.comment,
+                    updatedBy = teamMemberId,
+                
+                };
+
+                context.ApplicationScores.Add(score);
+            }
+            else {
+
+                existingScore.score = request.score;
+                existingScore.comment = request.comment;
+                existingScore.updatedBy = teamMemberId;
+                existingScore.updatedAt = DateTime.UtcNow;
+            }
+
+            await context.SaveChangesAsync();
+
+            return new Result
+            {
+                isSuccess = true
+            };
+        }
 
     
     }

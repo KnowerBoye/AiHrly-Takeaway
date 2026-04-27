@@ -16,6 +16,8 @@ public class ApiDbContext(DbContextOptions<ApiDbContext> options) : DbContext(op
         public DbSet<Application> Applications { get; set; }
         public DbSet<ApplicationNote> ApplicationNotes { get; set; }
         public DbSet<ApplicationStageHistory> ApplicationStageHistories { get; set; }
+
+        public DbSet<ApplicationScore> ApplicationScores { get; set; }
         
 
 

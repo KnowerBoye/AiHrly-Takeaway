@@ -106,3 +106,13 @@ public class ApplicationProfileResponse
 
     public List<ApplicationStageHistoryDto> stageHistory { get; set; }
 }
+
+
+
+public class UpsertScoreRequest
+{
+    [Range(1, 5)]
+    public int score { get; set; }
+
+    public string? comment { get; set; }
+}

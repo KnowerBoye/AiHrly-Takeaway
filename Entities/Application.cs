@@ -88,6 +88,6 @@ namespace AihrlyApi.Entities
         public Guid updatedBy { get; set; } 
 
         public TeamMember teamMember { get; set; }
-        public DateTime updatedAt { get; set; }
+        public DateTime updatedAt { get; set; } = DateTime.UtcNow;
     }
 }

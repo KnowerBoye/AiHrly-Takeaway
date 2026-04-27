@@ -87,6 +87,58 @@ public static class ApplicationEndpoints
             return Results.Ok(result);
         });
 
+
+        group.MapPut("/{id:guid}/scores/culture-fit" , async (Guid id , 
+        UpsertScoreRequest request ,
+        ApplicationService service ,
+        HttpContext httpContext) =>{
+            
+            var TeamMemberId = (Guid) httpContext.Items["TeamMemberId"];
+
+            var result = await service.UpsertScoreAsync(id , ScoreDimension.culture_fit , request , TeamMemberId);
+
+            if(result is null) return Results.NotFound();
+
+            return Results.NoContent();
+        }
+        ).AddEndpointFilter<TeamMemberFilter>()
+        .AddEndpointFilter<ValidationFilter<UpsertScoreRequest>>();
+
+
+        group.MapPut("/{id:guid}/scores/interview" , async (Guid id , 
+        UpsertScoreRequest request ,
+        ApplicationService service ,
+        HttpContext httpContext) =>{    
+            
+            var TeamMemberId = (Guid) httpContext.Items["TeamMemberId"];
+
+            var result = await service.UpsertScoreAsync(id , ScoreDimension.interview , request , TeamMemberId);
+
+            if(result is null) return Results.NotFound();
+
+            return Results.NoContent();
+        }
+        ).AddEndpointFilter<TeamMemberFilter>()
+        .AddEndpointFilter<ValidationFilter<UpsertScoreRequest>>();
+
+
+        group.MapPut("/{id:guid}/scores/assessment" , async (Guid id , 
+        UpsertScoreRequest request ,
+        ApplicationService service ,
+        HttpContext httpContext) =>{
+            
+            var TeamMemberId = (Guid) httpContext.Items["TeamMemberId"];
+
+            var result = await service.UpsertScoreAsync(id , ScoreDimension.assessment , request , TeamMemberId);
+
+            if(result is null) return Results.NotFound();
+
+            return Results.NoContent();
+        }
+        ).AddEndpointFilter<TeamMemberFilter>()
+        .AddEndpointFilter<ValidationFilter<UpsertScoreRequest>>();
+
+
         return group;
     }
 }
