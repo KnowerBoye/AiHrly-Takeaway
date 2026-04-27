@@ -7,6 +7,9 @@ using AihrlyApi.Validators;
 
 var builder = WebApplication.CreateBuilder(args);
 
+
+
+
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
@@ -20,6 +23,8 @@ options.UseNpgsql(builder.Configuration.GetConnectionString("Default")));
 
 
 
+
+
 // register validator from assembly 
 
 builder.Services.AddValidatorsFromAssemblyContaining<UpdateApplicationStageRequestValidator>();
@@ -30,6 +35,13 @@ builder.Services.AddScoped<JobService>();
 builder.Services.AddScoped<ApplicationService>();
 
 var app = builder.Build();
+
+
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<ApiDbContext>();
+    db.Database.Migrate();
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

@@ -31,7 +31,10 @@ namespace AihrlyApi.Entities
         public Guid jobId { get; set; }
 
         public Job job { get; set; }
+
+        [Required]
         public string name { get; set; }
+        [Required]
         public string email { get; set; }
 
         public string? coverLetter { get; set; } = "";
@@ -48,7 +51,10 @@ namespace AihrlyApi.Entities
     public class ApplicationNote
     {
         public Guid id { get; set;}
+
+        [Required]
         public ApplicationNoteType type {get; set;} 
+        [Required]
         public string description {get; set;}
         public Guid applicationId {get; set;}
 
@@ -56,6 +62,7 @@ namespace AihrlyApi.Entities
 
         public TeamMember teamMember {get; set;}
 
+        [Required]
         public DateTime created_at {get; set;} = DateTime.UtcNow;
     }
 
@@ -64,13 +71,18 @@ namespace AihrlyApi.Entities
     {
         public Guid id {get ; set;}
         public Guid applicationId {get; set;}
+
+        [Required]
         public ApplicationStages from_stage {get; set;}
+        [Required]
         public ApplicationStages to_stage {get; set;}
 
         public Guid changed_by {get; set;}
 
         public TeamMember teamMember {get; set;}
+        [Required]
         public DateTime changed_at {get; set;} = DateTime.UtcNow;
+        [Required]
         public string comment {get; set;} = "";
     }
 
@@ -81,13 +93,17 @@ namespace AihrlyApi.Entities
     {
         public Guid id { get; set; }
         public Guid applicationId { get; set; }
+        [Required]
         public ScoreDimension dimension { get; set; }
+
+        [Required]
         [Range(1 , 5)]
         public int score { get; set; } 
         public string? comment { get; set; }
         public Guid updatedBy { get; set; } 
 
         public TeamMember teamMember { get; set; }
+        [Required]
         public DateTime updatedAt { get; set; } = DateTime.UtcNow;
     }
 }
