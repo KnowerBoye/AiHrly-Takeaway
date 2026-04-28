@@ -38,7 +38,7 @@ builder.Services.AddValidatorsFromAssemblyContaining<UpdateApplicationStageReque
 // add services
 builder.Services.AddScoped<JobService>();
 builder.Services.AddScoped<ApplicationService>();
-builder.Services.AddScoped<NotificationService>();
+// builder.Services.AddScoped<NotificationService>();
 
 var app = builder.Build();
 
