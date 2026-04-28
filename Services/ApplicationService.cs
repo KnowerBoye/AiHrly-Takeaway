@@ -2,6 +2,8 @@ using AihrlyApi.DTOs;
 using AihrlyApi.Entities;
 using Microsoft.EntityFrameworkCore;
 using AihrlyApi.Data;
+using Hangfire;
+
 
 
 
@@ -158,6 +160,13 @@ namespace AihrlyApi.Services
         context.ApplicationStageHistories.Add(history);
 
         await context.SaveChangesAsync();
+
+
+        if(target == ApplicationStages.hired || target == ApplicationStages.rejected)
+            {
+                BackgroundJob.Enqueue<NotificationService>( service => service.SendStageNotification(applicationId , request.stage));
+
+            }
 
        
 

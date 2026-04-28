@@ -17,6 +17,8 @@ public class ApiDbContext(DbContextOptions<ApiDbContext> options) : DbContext(op
         public DbSet<ApplicationNote> ApplicationNotes { get; set; }
         public DbSet<ApplicationStageHistory> ApplicationStageHistories { get; set; }
 
+        public DbSet<Notification> Notifications {get; set;}
+
         public DbSet<ApplicationScore> ApplicationScores { get; set; }
         
 
@@ -27,6 +29,13 @@ public class ApiDbContext(DbContextOptions<ApiDbContext> options) : DbContext(op
             base.OnModelCreating(modelBuilder);
 
 
+            modelBuilder.Entity<Notification>()
+            .HasOne<Application>()
+            .WithMany()
+            .HasForeignKey(n => n.application_id)
+            .OnDelete(DeleteBehavior.NoAction);
+            
+         
 
             modelBuilder.Entity<Job>(entity =>
             {

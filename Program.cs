@@ -4,6 +4,8 @@ using AihrlyApi.Services;
 using System.Text.Json.Serialization;
 using FluentValidation;
 using AihrlyApi.Validators;
+using Hangfire;
+using Hangfire.MemoryStorage;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,7 +23,10 @@ builder.Services.AddProblemDetails();
 builder.Services.AddDbContext<ApiDbContext>(options =>
 options.UseNpgsql(builder.Configuration.GetConnectionString("Default")));
 
+builder.Services.AddHangfire(config =>
+    config.UseMemoryStorage()); 
 
+builder.Services.AddHangfireServer();
 
 
 
@@ -33,6 +38,7 @@ builder.Services.AddValidatorsFromAssemblyContaining<UpdateApplicationStageReque
 // add services
 builder.Services.AddScoped<JobService>();
 builder.Services.AddScoped<ApplicationService>();
+builder.Services.AddScoped<NotificationService>();
 
 var app = builder.Build();
 
