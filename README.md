@@ -90,6 +90,13 @@ A .NET 9 REST API for managing job applications, built with ASP.NET Core, Entity
    dotnet run
    ```
 
+5. **Seed data**
+```bash 
+dotnet run seed
+```
+You can't run this in the container. To seed data when deploying using docker uncomment the code block in Program.cs under `// container seeder` this will run the seed script by checking SEED environment variable. Didn't want to keep it active to keep the entry file from being bloated
+
+
 ---
 
 ## Database Setup

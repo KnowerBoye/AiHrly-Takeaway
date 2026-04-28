@@ -44,17 +44,6 @@ var app = builder.Build();
 
 
 
-//just for runnign seed script
-if (args.Length > 0 && args[0] == "seed")
-{
-    using var scope = app.Services.CreateScope();
-    var context = scope.ServiceProvider.GetRequiredService<ApiDbContext>();
-
-    await SeedData.Run(context);
-
-    Console.WriteLine("Seed completed");
-    return;
-}
 
 
 using (var scope = app.Services.CreateScope())
@@ -62,6 +51,32 @@ using (var scope = app.Services.CreateScope())
     var db = scope.ServiceProvider.GetRequiredService<ApiDbContext>();
     db.Database.Migrate();
 }
+
+
+
+//just for runnign seed script 
+if (args.Length > 0 && args[0] == "seed")
+{
+    using var scope = app.Services.CreateScope();
+    var context = scope.ServiceProvider.GetRequiredService<ApiDbContext>();
+
+    await SeedData.Run(context);
+    Console.WriteLine("Seed completed");
+    return;
+}
+
+
+// container seeder
+
+// if(Environment.GetEnvironmentVariable("SEED") == "true")
+// {
+//     using var scope = app.Services.CreateScope();
+//     var context = scope.ServiceProvider.GetRequiredService<ApiDbContext>();
+
+//     await SeedData.Run(context);
+//     Console.WriteLine("Seed completed");
+    
+// }
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
