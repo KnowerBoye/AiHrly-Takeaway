@@ -251,7 +251,8 @@ namespace AihrlyApi.Services
                     to = h.to_stage,
                     changed_at = h.changed_at,
                     comment = h.comment,
-                    changed_by = h.changed_by
+                    changed_by = h.changed_by,
+                    author_name = h.teamMember.name
                 })
                 .ToList()
         })
