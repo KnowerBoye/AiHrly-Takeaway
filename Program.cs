@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using AihrlyApi.Data;
 using AihrlyApi.Services;
-using System.Text.Json.Serialization;
 using FluentValidation;
 using AihrlyApi.Validators;
 using Hangfire;
@@ -82,6 +81,8 @@ if (args.Length > 0 && args[0] == "seed")
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    app.UseSwaggerUI(options => options.SwaggerEndpoint("/openapi/v1.json", "Swagger"));
+    
 }
 
 

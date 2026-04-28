@@ -24,7 +24,14 @@ public static class ApplicationEndpoints
             if(application is null) return Results.NotFound();
 
             return Results.Ok(application);
-        });
+        })
+        .WithName("GetApplicationProfile")
+        .WithSummary("Retrieve complete application profile")
+        .WithDescription("Fetches the full application profile including personal details, current stage, scores across all dimensions, notes, and stage history.")
+        .WithTags("Applications")
+        .Produces<ApplicationProfileResponse>(StatusCodes.Status200OK)
+        .Produces(StatusCodes.Status404NotFound)
+        .WithOpenApi();
 
 
         /// <summary>
@@ -50,7 +57,15 @@ public static class ApplicationEndpoints
             
         })
         .AddEndpointFilter<TeamMemberFilter>()
-        .AddEndpointFilter<FluentValidationFilter<UpdateApplicationStageRequest>>();
+        .AddEndpointFilter<FluentValidationFilter<UpdateApplicationStageRequest>>()
+        .WithName("UpdateApplicationStage")
+        .WithSummary("Move application to next stage")
+        .WithDescription("Updates the application's current stage with an optional comment. Requires team member authentication. Validates the stage transition and records the change in history.")
+        .WithTags("Applications", "Stage Management")
+        .Produces(StatusCodes.Status204NoContent)
+        .Produces(StatusCodes.Status404NotFound)
+        .Produces(StatusCodes.Status422UnprocessableEntity)
+        .WithOpenApi();
 
         
         
@@ -74,7 +89,14 @@ public static class ApplicationEndpoints
             
         })
         .AddEndpointFilter<TeamMemberFilter>()
-        .AddEndpointFilter<FluentValidationFilter<CreateApplicationNoteRequest>>();
+        .AddEndpointFilter<FluentValidationFilter<CreateApplicationNoteRequest>>()
+        .WithName("AddApplicationNote")
+        .WithSummary("Add note to application")
+        .WithDescription("Creates a new note attached to an application. Requires team member authentication. Notes can be used to track feedback, follow-ups, or observations about the candidate.")
+        .WithTags("Applications", "Notes")
+        .Produces<ApplicationNoteResponse>(StatusCodes.Status201Created)
+        .Produces(StatusCodes.Status404NotFound)
+        .WithOpenApi();
 
 
 
@@ -89,7 +111,14 @@ public static class ApplicationEndpoints
             if(result is null) return Results.NotFound();
 
             return Results.Ok(result);
-        });
+        })
+        .WithName("GetApplicationNotes")
+        .WithSummary("Retrieve all notes for an application")
+        .WithDescription("Fetches all notes associated with an application, including author information and timestamps. Notes are returned in chronological order.")
+        .WithTags("Applications", "Notes")
+        .Produces<List<ApplicationNoteDetails>>(StatusCodes.Status200OK)
+        .Produces(StatusCodes.Status404NotFound)
+        .WithOpenApi();
 
 
 
@@ -110,7 +139,15 @@ public static class ApplicationEndpoints
             return Results.NoContent();
         }
         ).AddEndpointFilter<TeamMemberFilter>()
-        .AddEndpointFilter<ValidationFilter<UpsertScoreRequest>>();
+        .AddEndpointFilter<ValidationFilter<UpsertScoreRequest>>()
+        .WithName("UpsertCultureFitScore")
+        .WithSummary("Score application on culture fit")
+        .WithDescription("Creates or updates the culture fit score for an application. Score must be between 1 and 5. Requires team member authentication.")
+        .WithTags("Applications", "Scoring")
+        .Produces(StatusCodes.Status204NoContent)
+        .Produces(StatusCodes.Status404NotFound)
+        .Produces(StatusCodes.Status422UnprocessableEntity)
+        .WithOpenApi();
 
 
         group.MapPut("/{id:guid}/scores/interview" , async (Guid id , 
@@ -127,7 +164,15 @@ public static class ApplicationEndpoints
             return Results.NoContent();
         }
         ).AddEndpointFilter<TeamMemberFilter>()
-        .AddEndpointFilter<ValidationFilter<UpsertScoreRequest>>();
+        .AddEndpointFilter<ValidationFilter<UpsertScoreRequest>>()
+        .WithName("UpsertInterviewScore")
+        .WithSummary("Score application on interview performance")
+        .WithDescription("Creates or updates the interview score for an application. Score must be between 1 and 5. Requires team member authentication.")
+        .WithTags("Applications", "Scoring")
+        .Produces(StatusCodes.Status204NoContent)
+        .Produces(StatusCodes.Status404NotFound)
+        .Produces(StatusCodes.Status422UnprocessableEntity)
+        .WithOpenApi();
 
 
         group.MapPut("/{id:guid}/scores/assessment" , async (Guid id , 
@@ -144,7 +189,15 @@ public static class ApplicationEndpoints
             return Results.NoContent();
         }
         ).AddEndpointFilter<TeamMemberFilter>()
-        .AddEndpointFilter<ValidationFilter<UpsertScoreRequest>>();
+        .AddEndpointFilter<ValidationFilter<UpsertScoreRequest>>()
+        .WithName("UpsertAssessmentScore")
+        .WithSummary("Score application on technical assessment")
+        .WithDescription("Creates or updates the assessment score for an application. Score must be between 1 and 5. Requires team member authentication.")
+        .WithTags("Applications", "Scoring")
+        .Produces(StatusCodes.Status204NoContent)
+        .Produces(StatusCodes.Status404NotFound)
+        .Produces(StatusCodes.Status422UnprocessableEntity)
+        .WithOpenApi();
 
 
         return group;

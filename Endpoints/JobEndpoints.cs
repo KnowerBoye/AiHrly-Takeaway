@@ -28,7 +28,14 @@ public static class JobEndpoints
             return Results.Created($"api/jobs/{jobResponse?.id}", jobResponse);
 
         })
-        .AddEndpointFilter<ValidationFilter<CreateJobRequest>>();
+        .AddEndpointFilter<ValidationFilter<CreateJobRequest>>()
+        .WithName("CreateJob")
+        .WithSummary("Create a new job posting")
+        .WithDescription("Creates a new job posting with title, description, and location. Returns the created job with its ID.")
+        .WithTags("Jobs")
+        .Produces<JobResponse>(StatusCodes.Status201Created)
+        .Produces(StatusCodes.Status422UnprocessableEntity)
+        .WithOpenApi();
 
         
         /// <summary>
@@ -44,12 +51,20 @@ public static class JobEndpoints
             }
 
             return Results.Ok(job);
-        });
+        })
+        .WithName("GetJobById")
+        .WithSummary("Retrieve a job posting by ID")
+        .WithDescription("Fetches a specific job posting by its unique ID. Returns 404 if the job does not exist.")
+        .WithTags("Jobs")
+        .Produces<JobResponse>(StatusCodes.Status200OK)
+        .Produces(StatusCodes.Status404NotFound)
+        .WithOpenApi();
 
         
         
         /// <summary>
         /// Get all jobs with pagination and optional status filter
+        /// </summary>
         group.MapGet("/" , async ( JobService service , 
         Status? status,  int page = 1 , int pageSize = 20) =>
         {
@@ -59,7 +74,13 @@ public static class JobEndpoints
 
             var result = await service.GetAllAsync(status , page , pageSize);
             return Results.Ok(result);
-        });
+        })
+        .WithName("ListAllJobs")
+        .WithSummary("List all job postings")
+        .WithDescription("Retrieves a paginated list of all job postings. Supports optional filtering by status. Default page size is 20.")
+        .WithTags("Jobs")
+        .Produces<PagedResult<JobResponse>>(StatusCodes.Status200OK)
+        .WithOpenApi();
 
 
 
@@ -81,14 +102,22 @@ public static class JobEndpoints
 
             return Results.Created($"api/applications/{result.data?.id}", result.data);
         })
-        .AddEndpointFilter<ValidationFilter<CreateApplicationRequest>>();
+        .AddEndpointFilter<ValidationFilter<CreateApplicationRequest>>()
+        .WithName("CreateJobApplication")
+        .WithSummary("Submit a job application")
+        .WithDescription("Creates a new application for a specific job posting. Requires candidate name, email, and optional cover letter.")
+        .WithTags("Jobs", "Applications")
+        .Produces<ApplicationResponse>(StatusCodes.Status201Created)
+        .Produces(StatusCodes.Status404NotFound)
+        .Produces(StatusCodes.Status400BadRequest)
+        .WithOpenApi();
+
 
 
 
         /// <summary>
-        /// list al applications for a job with optional stage filter
+        /// List all applications for a job with optional stage filter
         /// </summary>
-
         group.MapGet("/{jobId:guid}/applications" , async (Guid jobId , 
         ApplicationStages? stage , ApplicationService service) =>
         {   
@@ -98,7 +127,14 @@ public static class JobEndpoints
 
             return Results.Ok(result);
             
-        });
+        })
+        .WithName("ListJobApplications")
+        .WithSummary("Retrieve all applications for a job")
+        .WithDescription("Fetches all applications submitted for a specific job. Supports optional filtering by application stage.")
+        .WithTags("Jobs", "Applications")
+        .Produces<List<ApplicationResponse>>(StatusCodes.Status200OK)
+        .Produces(StatusCodes.Status404NotFound)
+        .WithOpenApi();
 
         return group;
     }

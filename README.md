@@ -169,5 +169,9 @@ The following team members are automatically seeded once you run migrations
 For the Background Job I used Hangfire and since this is not production grade version I used `MemoryStorage` instead to avoid having to spin up an SQLServer DB or anything of that sorts.
 I chose Hangfire over the native BackgrounService because it's persist data. 
 As the applications scales some of the options will be to move to using a message queue like RabbitMQ etc 
-with that I'll spin up a separate container to handle the consumers/workers as a separate .
+with that I'll spin up a separate container to handle the consumers/workers as a separate.
+
+
+## Note 
+Not done with my Swagger implementaion.
 
