@@ -34,7 +34,9 @@ public static class SeedData
                 name = faker.Name.FullName(),
                 email = faker.Internet.Email(),
                 coverLetter = faker.Lorem.Paragraph(),
-                current_stage = ApplicationStages.applied
+                current_stage = ApplicationStages.applied,
+                notes = new List<ApplicationNote>(),
+              
             };
 
             int noteCount = faker.Random.Int(2, 5);
