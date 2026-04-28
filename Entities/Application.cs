@@ -37,7 +37,9 @@ namespace AihrlyApi.Entities
         [Required]
         public string email { get; set; }
 
-        public string? coverLetter { get; set; } = "";
+        public string ? coverLetter { get; set; } = "";
+
+        [Required]
         public ApplicationStages current_stage { get; set; } = ApplicationStages.applied;
 
         public ICollection<ApplicationNote> notes { get; set; }
